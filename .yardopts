@@ -1,0 +1,6 @@
+--title "SketchUp Ruby API Documentation"
+--no-api
+--no-private
+--tag par --hide-tag par
+-e su-api_plugin.rb
+-p su-template
