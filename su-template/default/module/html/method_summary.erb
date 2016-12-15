@@ -1,5 +1,6 @@
 <% if method_listing.size > 0 %>
   <% groups(method_listing) do |list, name| %>
+    <a name="<%= name.gsub(' ', '_').downcase %>"></a>
     <h2>
       <%= name %>
       <small><a href="#" class="summary_toggle">collapse</a></small>
