@@ -87,7 +87,10 @@ def namespace_definition(object)
   if object.type == :class && object.superclass.name != :Object
     definition << " < #{object.superclass.path}"
   end
-  definition
+  output = StringIO.new
+  output.puts generate_docstring(object)
+  output.puts definition
+  output.string
 end
 
 def stubs_path
@@ -229,9 +232,9 @@ def generate_method_signature(object)
   signature
 end
 
-def generate_docstring(object, index_step)
+def generate_docstring(object, indent_step = 0)
   output = StringIO.new
-  indent = '  ' * index_step
+  indent = '  ' * indent_step
   docstring = object.docstring
   docstring.delete_tags(:par) # Remove obsolete @par tags.
   docstring.to_raw.lines.each { |line|
