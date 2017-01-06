@@ -110,6 +110,13 @@ class Diff < Thor
     end
 
     # TODO(thomthom): Open files and make text replacements.
+    file_objects.each { |file_object|
+      offset = 0
+      file_object[:objects].each { |object|
+        offset = replace_docstring(object, file_object[:file], offset)
+        #puts "Offset: #{offset}".cyan
+      }
+    }
   end
 
   private
@@ -122,14 +129,90 @@ class Diff < Thor
   RUBY_INSTANCE_METHOD = /^\s*def\s(.+?)(?:[(]|$)/
   RUBY_COMMENT_LINE = /^\s*#/
 
+  def replace_docstring(change, filename, offset)
+    puts
+    puts "Object #{change[:object]}".green
+    # Source docstring
+    puts "Source File: #{filename}".yellow
+    start_line = change[:start] + 1
+    end_line = change[:end] + 1
+    puts "> Lines: #{start_line}...#{end_line} (#{end_line - start_line} lines)"
+    source_docstring = get_change_docstring(change, filename)
+    #puts
+    #puts source_docstring.join("\n").cyan
+    #puts
+    # Target docstring
+    object_path = change[:object]
+    cpp_object = YARD::Registry.at(object_path)
+    cpp_file = File.expand_path(cpp_object.file)
+    puts "Target File: #{cpp_file}".yellow
+    puts "> Lines: #{cpp_object.docstring.line_range} (#{cpp_object.docstring.line_range.size} lines)"
+    # Strip out the Ruby comment syntax in order to obtain a language neutral
+    # docstring.
+    stripped_lines = strip_ruby_comment(source_docstring)
+    doc_string = stripped_lines.join("\n")
+    # We can then generate a C++ docstring.
+    cpp_doc_string = cpp_comment(stripped_lines)
+    cpp_doc_string_lines = cpp_doc_string.lines
+    cpp_doc_string_lines.each { |line| line.chomp! }
+    #puts
+    #puts cpp_doc_string.cyan
+    #puts
+    cpp_lines = File.read(cpp_file).lines
+    cpp_lines.each { |line| line.chomp! }
+    cpp_range = cpp_object.docstring.line_range
+    # Expand the range to include the start and end of the C++ comment. YARD
+    # Doesn't preserve this.
+    cpp_begin = find_start_of_cpp_comment(cpp_lines, offset + cpp_range.begin)
+    cpp_end   = find_end_of_cpp_comment(cpp_lines, offset + cpp_range.last)
+    cpp_range = (cpp_begin .. cpp_end)
+    puts "> Offset Lines: #{cpp_range} (#{cpp_range.size} lines)".yellow
+    #puts '=' * 20
+    #puts cpp_lines[cpp_range]
+    #puts '-' * 20
+    #puts cpp_doc_string_lines
+    #puts '=' * 20
+    # Replace the changed lines.
+    cpp_lines[cpp_range] = cpp_doc_string_lines
+    # Compile the new document.
+    cpp_content = cpp_lines.join("\n")
+    File.write(cpp_file, cpp_content)
+    # Since the C++ file is changed we need to take into account that files
+    # might have been added/removed when replacing multiple comments in a file.
+    # The line difference is returned so it can be used in consecutive calls to
+    # this method.
+    #puts "C++ Old Lines: #{cpp_range.size}"
+    #puts "C++ New Lines: #{cpp_doc_string_lines.size}"
+    #puts "       Offset: #{offset}"
+    offset + (cpp_doc_string_lines.size - cpp_range.size)
+  end
+
+  CPP_COMMENT_START = /^\s*\/\*/
+  CPP_COMMENT_END = /\*\/\s*$/
+  def find_start_of_cpp_comment(lines, line_number)
+    line_number.downto(0) { |line_number|
+      line = lines[line_number]
+      return line_number if line.match(CPP_COMMENT_START)
+    }
+    0
+  end
+
+  def find_end_of_cpp_comment(lines, line_number)
+    line_number.upto(lines.size - 1) { |line_number|
+      line = lines[line_number]
+      return line_number if line.match(CPP_COMMENT_END)
+    }
+    lines.size - 1
+  end
+
   def strip_ruby_comment(docstring_lines)
-    docstring_lines.map { |line| line.gsub(/^\s*#\s?/, '') }
+    docstring_lines.map { |line| line.gsub(/^\s*#\s?/, '').rstrip }
   end
 
   def cpp_comment(lines)
     comment = StringIO.new
-    comment.puts "/*"
-    lines.each { |line| comment.puts " * #{line}" }
+    comment.puts "/**"
+    lines.each { |line| comment.puts " * #{line}".rstrip }
     comment.puts " */"
     comment.string
   end
