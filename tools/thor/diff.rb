@@ -22,13 +22,8 @@ class Diff < Thor
 
   desc "list", "Diff Ruby API documentation changes"
   def list
-    objects = find_changed_api_objects
-    object_names = []
-    objects.each { |file_objects|
-      file_objects[:objects].each { |object|
-        object_names << object[:object]
-      }
-    }
+    file_objects = find_changed_api_objects
+    object_names = get_changed_objects_names(file_objects)
     puts object_names.join("\n")
   end
   default_task :list
@@ -89,12 +84,7 @@ class Diff < Thor
     file_objects = find_changed_api_objects
 
     # Get a list of names for all the changed API object.
-    object_names = []
-    file_objects.each { |file_object|
-      file_object[:objects].each { |object|
-        object_names << object[:object]
-      }
-    }
+    object_names = get_changed_objects_names(file_objects)
 
     # Find the changes API objects in the C++ source.
     source_objects = object_names.map { |object_name|
@@ -143,6 +133,16 @@ class Diff < Thor
     lines.each { |line| comment.puts " * #{line}" }
     comment.puts " */"
     comment.string
+  end
+
+  def get_changed_objects_names(file_objects)
+    object_names = []
+    file_objects.each { |file_object|
+      file_object[:objects].each { |object|
+        object_names << object[:object]
+      }
+    }
+    object_names
   end
 
   def find_changed_api_objects
