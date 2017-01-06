@@ -100,9 +100,12 @@ class Diff < Thor
       File.writable?(filename)
     }
     if locked_files.empty?
+      puts 'Some files are writable.'.red
+      puts 'This could indicate the files have been modified.'
+      puts 'Please commit or revert the following files:'
       puts source_files.join("\n").yellow
+      # TODO(thomthom): Offer to revert files.
     else
-      puts 'Some files are not writable.'.red
       puts locked_files.join("\n").yellow
       exit if no?('Check out listed files to default changelist?')
       files = locked_files.join(' ')
