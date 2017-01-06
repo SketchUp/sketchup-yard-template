@@ -22,15 +22,14 @@ class Diff < Thor
   def list
     file_objects = find_changed_api_objects
     object_names = get_changed_objects_names(file_objects)
-    puts object_names.join("\n")
+    puts object_names.join("\n").yellow
   end
   default_task :list
 
   desc "preview OBJECT", "See the changes for an incoming change"
   def preview(object_path)
     file_objects = find_changed_api_objects
-    #puts 'CHANGED API OBJECTS'
-    #puts JSON.pretty_generate(file_objects)
+    # Find the object we are looking for.
     object = nil
     change = nil
     file_objects.each { |file_object|
@@ -38,17 +37,18 @@ class Diff < Thor
       object = file_object
       break if change
     }
-    #puts 'CHANGE'
-    #p change
-    #puts 'OBJECT'
-    #puts JSON.pretty_generate(object)
+    # Read the docstring from the changed stub.
+    # TODO(thomthom): Refactor to separate method.
     lines = File.read(object[:file]).lines
     start_index = change[:start]
     end_index = change[:end]
     doc_string_lines = lines[start_index..end_index]
     doc_string_lines.each { |line| line.chomp! }
+    # Strip out the Ruby comment syntax in order to obtain a language neutral
+    # docstring.
     stripped_lines = strip_ruby_comment(doc_string_lines)
     doc_string = stripped_lines.join("\n")
+    # We can then generate a C++ docstring.
     cpp_doc_string = cpp_comment(stripped_lines)
 
     puts "File: #{object[:file]}".green
@@ -60,14 +60,13 @@ class Diff < Thor
     puts separator
   end
 
-  desc "find OBJECT", "Find the origin of a given API object"
+  desc "find OBJECT", "Find the origin of a given API object in our C++ source"
   def find(object_path)
     YARD::Registry.load!
     object = YARD::Registry.at(object_path)
     puts "File: #{object.file}".green
     puts "Lines: #{object.docstring.line_range} (#{object.docstring.line_range.size} lines)".yellow
     puts
-    #puts object.docstring.to_raw
     separator = '=' * 80
     puts separator
     puts object.docstring.all.cyan
@@ -121,6 +120,11 @@ class Diff < Thor
   DIFF_HEADER = /^diff --git a\/(.*)\s+b\//
   DIFF_HUNK = /^@@\s+\-(\d+),(\d+)\s+\+(\d+),(\d+)\s+@@\s?/
 
+  RUBY_NAMESPACE = /^(?:class|module)\s(\S+)/
+  RUBY_CLASS_METHOD = /^\s*def\s(?:self\.)(.+?)(?:[(]|$)/
+  RUBY_INSTANCE_METHOD = /^\s*def\s(.+?)(?:[(]|$)/
+  RUBY_COMMENT_LINE = /^\s*#/
+
   def strip_ruby_comment(docstring_lines)
     docstring_lines.map { |line| line.gsub(/^\s*#\s?/, '') }
   end
@@ -144,9 +148,9 @@ class Diff < Thor
   end
 
   def find_changed_api_objects
+    # TODO(thomthom): Get path from config.
     source_path = 'C:/Users/tthomas2/SourceTree/ruby-api-stubs'
 
-    #git = Git.open(working_dir, :log => Logger.new(STDOUT))
     git = Git.open(source_path)
     puts "Current branch: #{git.current_branch}".yellow
 
@@ -157,33 +161,15 @@ class Diff < Thor
     end
 
     # Diff only checked in changes.
-    #diffs = git.diff(git.current_branch, 'master')
     diffs = git.diff('master', git.current_branch)
-    #puts "Number of changed files: #{diffs.size}"
-    #p diffs
-    #exit
 
-    #puts "Number of files: #{diffs.size}"
-    #puts JSON.pretty_generate(diffs.stats)
-    #puts JSON.pretty_generate(diffs.name_status)
-
+    # Extract what lines changed from the git diffs.
     changes = diffs.map do |diff|
-      #puts '=' * 20
-      #puts 'PATCH'
-      #puts '=' * 20
-      #puts diff.patch
       parse_patch(diff.patch)
     end
-    #puts '-' * 20
-    #puts 'CHANGES'
-    #puts '-' * 20
-    #puts JSON.pretty_generate(changes)
 
+    # Determine what API objects (methods, classes, modules) changed.
     objects = find_objects(changes, source_path)
-    #puts '-' * 20
-    #puts 'OBJECTS'
-    #puts '-' * 20
-    #puts JSON.pretty_generate(objects)
     objects
   end
 
@@ -198,10 +184,6 @@ class Diff < Thor
     objects
   end
 
-  RUBY_NAMESPACE = /^(?:class|module)\s(\S+)/
-  RUBY_CLASS_METHOD = /^\s*def\s(?:self\.)(.+?)(?:[(]|$)/
-  RUBY_INSTANCE_METHOD = /^\s*def\s(.+?)(?:[(]|$)/
-  RUBY_COMMENT_LINE = /^\s*#/
   def find_changed_objects(change, line_numbers, source_path)
     filename = File.join(source_path, change[:file])
 
@@ -221,12 +203,13 @@ class Diff < Thor
       line_number = stack.shift
       next if parsed.include?(line_number)
       parsed << line_number
+      # Given a line number where a change was made, scan the file until we
+      # find a line that isn't a Ruby comment. That will be the end of the
+      # docstring and we can determine what object it relates to.
       lines[line_number..-1].each_with_index { |line, offset|
         current_line_number = line_number + offset + 1
         parsed << current_line_number
         next if line =~ RUBY_COMMENT_LINE
-        # TODO(thomthom): At the moment detect only methods. Stubs doesn't
-        # include doc comments for classes/modules.
         object_path = nil
         if result = line.match(RUBY_CLASS_METHOD)
           method_name = result.captures.first
@@ -243,6 +226,10 @@ class Diff < Thor
           puts JSON.pretty_generate(change)
           raise 'Unable to determine what object changed'
         end
+        # We then scan the file upwards to determine the start of the docstring.
+        # This will give us the range of the changes along with the API object
+        # that was changed.
+        # TODO(thomthom): Refactor to custom class.
         objects << {
           start: find_start_line_number(lines, line_number),
           end: current_line_number - 2,
@@ -293,6 +280,7 @@ class Diff < Thor
     result = line.match(DIFF_HUNK)
     return nil unless result
     a_start, a_size, b_start, b_size = result.captures
+    # TODO(thomthom): Refactor to custom class.
     {
       from: {
         start: to_int(a_start),
@@ -308,25 +296,19 @@ class Diff < Thor
   end
 
   def line_info(git_line, line_start, line_offset)
+    # TODO(thomthom): Refactor to custom class.
     x = {
       line: line_start + line_offset,
       content: git_line[1..-1],
       line_start: line_start,
       line_offset: line_offset,
     }
-    #puts JSON.pretty_generate(x)
     x
   end
 
   def parse_patch(diff_string)
-    #puts '/' * 20
-    #puts 'PARSE PATCH'
-    #puts '/' * 20
     # http://stackoverflow.com/questions/2529441/how-to-read-the-output-from-git-diff
     # http://stackoverflow.com/a/2530012
-    #puts '=' * 20
-    #puts diff_string
-    #puts '=' * 20
     lines = diff_string.lines
     file = lines[0].match(DIFF_HEADER)[1]
     hunks = []
@@ -334,9 +316,7 @@ class Diff < Thor
     remove_offset = 0
     lines.each_with_index { |line, index|
       line.chomp!
-      #puts "#{line} (#{line.match(DIFF_HUNK).inspect})"
       if hunk = parse_hunk(line)
-        #puts "NEW HUNK: #{line}"
         add_offset = 0
         remove_offset = 0
         hunks << hunk
@@ -354,7 +334,6 @@ class Diff < Thor
           remove_offset += 1
         end
       end
-      #hunk_line_offset += 1
     }
     {
       file: file,
