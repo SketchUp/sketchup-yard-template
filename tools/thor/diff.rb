@@ -105,6 +105,7 @@ class Diff < Thor
       puts 'Please commit or revert the following files:'
       puts source_files.join("\n").yellow
       # TODO(thomthom): Offer to revert files.
+      exit
     else
       puts locked_files.join("\n").yellow
       exit if no?('Check out listed files to default changelist?')
@@ -132,6 +133,9 @@ class Diff < Thor
   RUBY_INSTANCE_METHOD = /^\s*def\s(.+?)(?:[(]|$)/
   RUBY_COMMENT_LINE = /^\s*#/
 
+  CPP_COMMENT_START = /^\s*\/\*/
+  CPP_COMMENT_END = /\*\/\s*$/
+
   def replace_docstring(change, filename, offset)
     puts
     puts "Object #{change[:object]}".green
@@ -155,69 +159,10 @@ class Diff < Thor
     stripped_lines = strip_ruby_comment(source_docstring)
     doc_string = stripped_lines.join("\n")
     # Restore @overload tags.
-    if cpp_object.is_a?(YARD::CodeObjects::MethodObject)
-      params = cpp_object.parameters.map { |param| param.first }
-      return offset if params.empty?
-      puts '=' * 20
-      #puts source_docstring.join("\n").cyan
-      p params.sort
-      puts '-' * 20
-      ds = YARD::DocstringParser.new.parse(doc_string).to_docstring
-      overloads = ds.tags(:overload)
-      return offset unless overloads.empty?
-      param_tags = ds.tags(:param)
-      param_names = param_tags.map { |tag| tag.name }
-      p param_names
-      #p ds.tags
-      puts ds.all.cyan
-      puts '=' * 20
-      return offset if param_names.sort == params.sort
-      puts 'FIXING'
-      #params_signature = param_tags.map { |param|
-      #  p param
-      #  param.last.nil? ? param.first : param.join(' = ')
-      #}.join(', ')
-      params_signature = param_names.join(', ')
-      #puts params_signature
-      signature = "#{cpp_object.name}"
-      signature << "(#{params_signature})" unless params.empty?
-      #signature << "\nHELLO"
-      #puts signature
-      #overload = YARD::Tags::OverloadTag.new(:overload, signature)
-      #ds.add_tag(overload)
-      #p overload
-      doc_string.sub!('@param', "@overload #{signature}\n@param")
-      #doc_string.gsub!('@param', '  @param')
-      param_pattern = /(@param\s.+?)^\s*$/m
-      results = doc_string.scan(param_pattern)
-      results.each { |result|
-        indented = StringIO.new
-        result[0].lines { |line|
-          indented.puts "  #{line.chomp}"
-        }
-        doc_string.sub!(result[0], indented.string.rstrip)
-      }
-      #puts indented.string
-      #p result
-      #p result.captures
-
-      ds = YARD::DocstringParser.new.parse(doc_string).to_docstring
-      #puts ds.all.cyan
-      #puts ds.to_raw.cyan
-      output = StringIO.new
-      ds.to_raw.lines.each { |line|
-        # Naive check for tags with no indent - if it is we insert an extra line
-        # in order to get some space for easier reader. Doing it this way in order
-        # to avoid hacking YARD too much.
-        output.puts if line.start_with?('@')
-        # This is the original docstring line.
-        output.puts line
-      }
-      puts output.string.cyan
-      #overload.add_tag(*param_tags)
-      #overload.delete_tags(:param)
-    end
-    return offset
+    doc_string = reformat_docstring(doc_string, cpp_object)
+    #puts '=' * 20
+    #puts doc_string.cyan
+    #puts '-' * 20
     # We can then generate a C++ docstring.
     cpp_doc_string = cpp_comment(stripped_lines)
     cpp_doc_string_lines = cpp_doc_string.lines
@@ -254,8 +199,48 @@ class Diff < Thor
     offset + (cpp_doc_string_lines.size - cpp_range.size)
   end
 
-  CPP_COMMENT_START = /^\s*\/\*/
-  CPP_COMMENT_END = /\*\/\s*$/
+  def reformat_docstring(doc_string, cpp_object)
+    return doc_string unless cpp_object.is_a?(YARD::CodeObjects::MethodObject)
+    # If the method have parameters we need to check if we need to add an
+    # overload for the C++ doc comment.
+    cpp_params = cpp_object.parameters.map { |param| param.first }
+    return doc_string if cpp_params.empty?
+    ds = YARD::DocstringParser.new.parse(doc_string).to_docstring
+    # We only need to inject an overload if the doc comment doesn't already
+    # have overloads.
+    overloads = ds.tags(:overload)
+    return doc_string unless overloads.empty?
+    # If the C++ param list doesn't match the Ruby stub param list we need to
+    # add an overload.
+    param_tags = ds.tags(:param)
+    param_names = param_tags.map { |tag| tag.name }
+    return doc_string if param_names.sort == cpp_params.sort
+    # Generating overload signature.
+    params_signature = param_names.join(', ')
+    signature = "#{cpp_object.name}"
+    signature << "(#{params_signature})" unless cpp_params.empty?
+    # Injecting @overload tag before the first @param tag.
+    doc_string.sub!('@param', "@overload #{signature}\n@param")
+    # Indent all @params tags.
+    param_pattern = /(@param\s.+?)^\s*$/m
+    results = doc_string.scan(param_pattern)
+    results.each { |result|
+      indented = StringIO.new
+      result[0].lines { |line|
+        indented.puts "  #{line.chomp}"
+      }
+      doc_string.sub!(result[0], indented.string)
+    }
+    # Now reformat the doc string using YARD to keep things consistent.
+    ds = YARD::DocstringParser.new.parse(doc_string).to_docstring
+    output = StringIO.new
+    ds.to_raw.lines.each { |line|
+      output.puts if line.start_with?('@') # Adds extra line between tags.
+      output.puts line
+    }
+    output.string
+  end
+
   def find_start_of_cpp_comment(lines, line_number)
     line_number.downto(0) { |line_number|
       line = lines[line_number]
