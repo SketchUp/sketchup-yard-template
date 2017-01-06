@@ -9,10 +9,8 @@ require 'stringio'
 
 # gem install git
 # gem install git_diff_parser
-# gem install git_diff
 require 'git'
 require 'git_diff_parser'
-#require 'git_diff'
 
 require './tools/thor/yard_helper'
 
