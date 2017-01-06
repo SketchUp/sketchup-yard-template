@@ -1,0 +1,8 @@
+/.yardoc/
+/backup/
+/doc/
+/stubs/
+
+*.log
+
+coverage.manifest
