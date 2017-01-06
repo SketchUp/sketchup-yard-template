@@ -4,3 +4,15 @@
 --tag par --hide-tag par
 -e su-api_plugin.rb
 -p su-template
+../runits.cpp
+../rsketchup.cpp
+../rentity.cpp
+../rdrawingelement.cpp
+../rgeom.cpp
+../rui.cpp
+../*.cpp
+../observer/rubyentityobserver.cpp
+../observer/rubyentitiesobserver.cpp
+../observer/*.cpp
+-
+pages/*.md
