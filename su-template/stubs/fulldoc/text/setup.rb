@@ -52,7 +52,7 @@ end
 
 def generate_module_stubs(object)
   filename = stub_filename(object)
-  File.open(filename, 'w') { |file|
+  StubFile.open(filename, 'w') { |file|
     file.puts file_header(object)
     file.puts
     file.puts namespace_definition(object)
@@ -64,6 +64,7 @@ def generate_module_stubs(object)
     file.puts
     file.puts file_footer(object)
   }
+  #trim_trailing_white_space(filename)
 end
 
 def file_header(object)
@@ -271,6 +272,29 @@ def ensure_exist(path)
     FileUtils.mkdir_p(path)
   end
   path
+end
+
+
+class StubFile < File
+
+  def puts(*args)
+    case args.size
+    when 0
+      super
+    when 1
+      super trim_trailing_white_space(args[0].to_s)
+    else
+      raise NotImplementedError
+    end
+  end
+
+  private
+
+  TRAILING_WHITE_SPACE = /([\t ]+)$/
+  def trim_trailing_white_space(string)
+    string.gsub(TRAILING_WHITE_SPACE, '')
+  end
+
 end
 
 
