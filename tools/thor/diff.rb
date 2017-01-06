@@ -164,7 +164,7 @@ class Diff < Thor
     #puts doc_string.cyan
     #puts '-' * 20
     # We can then generate a C++ docstring.
-    cpp_doc_string = cpp_comment(stripped_lines)
+    cpp_doc_string = cpp_comment(doc_string.lines)
     cpp_doc_string_lines = cpp_doc_string.lines
     cpp_doc_string_lines.each { |line| line.chomp! }
     #puts
