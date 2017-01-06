@@ -38,12 +38,7 @@ class Diff < Thor
       break if change
     }
     # Read the docstring from the changed stub.
-    # TODO(thomthom): Refactor to separate method.
-    lines = File.read(object[:file]).lines
-    start_index = change[:start]
-    end_index = change[:end]
-    doc_string_lines = lines[start_index..end_index]
-    doc_string_lines.each { |line| line.chomp! }
+    doc_string_lines = get_change_docstring(change, object[:file])
     # Strip out the Ruby comment syntax in order to obtain a language neutral
     # docstring.
     stripped_lines = strip_ruby_comment(doc_string_lines)
@@ -51,8 +46,10 @@ class Diff < Thor
     # We can then generate a C++ docstring.
     cpp_doc_string = cpp_comment(stripped_lines)
 
+    start_line = change[:start] + 1
+    end_line = change[:end] + 1
     puts "File: #{object[:file]}".green
-    puts "Lines: #{start_index+1}...#{end_index+1} (#{end_index-start_index} lines)".yellow
+    puts "Lines: #{start_line}...#{end_line} (#{end_line - start_line} lines)".yellow
     puts
     separator = '=' * 80
     puts separator
@@ -135,6 +132,15 @@ class Diff < Thor
     lines.each { |line| comment.puts " * #{line}" }
     comment.puts " */"
     comment.string
+  end
+
+  def get_change_docstring(change, file)
+    lines = File.read(file).lines
+    start_index = change[:start]
+    end_index = change[:end]
+    doc_string_lines = lines[start_index..end_index]
+    doc_string_lines.each { |line| line.chomp! }
+    doc_string_lines
   end
 
   def get_changed_objects_names(file_objects)
