@@ -4,6 +4,7 @@ require './tools/thor/yard_helper'
 
 class Stubs < Thor
 
+  include Thor::Actions
   include YardHelper
 
   CONFIGURATION_FILENAME = 'config.json'.freeze
@@ -24,6 +25,8 @@ class Stubs < Thor
     end
     source = 'stubs/.'
     target = read_config(:stubs, :target)
+    destination_root = target
+    source_paths << Dir.pwd
     puts "Source: #{source}"
     puts "Target: #{target}"
     unless File.writable?(target)
@@ -34,6 +37,22 @@ class Stubs < Thor
     end
     # TODO(thomthom): Clean out target to eliminate removed files?
     FileUtils.cp_r(source, target)
+    directory('assets', "#{target}/assets")
+    directory('pages', "#{target}/pages")
+    directory('su-template/default', "#{target}/su-template/default")
+    copy_file('su-api_plugin.rb', "#{target}/su-api_plugin.rb", force: true)
+    create_file("#{target}/.yardopts", force: true) {
+      <<-EOT
+--title "SketchUp Ruby API Documentation"
+--no-api
+--no-private
+-e su-api_plugin.rb
+-p su-template
+SketchUp/**/*.rb
+-
+pages/*.md
+      EOT
+    }
   end
 
   desc "configure TARGET_PATH", "Configure install path for the stubs"
