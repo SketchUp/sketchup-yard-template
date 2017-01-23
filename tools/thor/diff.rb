@@ -79,6 +79,7 @@ class Diff < Thor
 
     # Get a list of names for all the changed API object.
     object_names = get_changed_objects_names(file_objects)
+    puts object_names.join("\n").magenta
 
     # Find the changes API objects in the C++ source.
     source_objects = object_names.map { |object_name|
@@ -90,7 +91,7 @@ class Diff < Thor
 
     # Collect a list of CPP files that will be affected.
     source_files = source_objects.map { |object|
-      File.expand_path(object.file)
+      find_object_source_file(object)
     }.uniq
     puts "#{source_files.size} files affected"
 
@@ -136,6 +137,23 @@ class Diff < Thor
   CPP_COMMENT_START = /^\s*\/\*/
   CPP_COMMENT_END = /\*\/\s*$/
 
+  def find_object_source_file(object)
+    # For virtual methods, like methods on the Tool class, YARD isn't
+    # returning a file. For now we'll try to get that from the class/module
+    # doc object.
+    if object.file.nil?
+      object_name = object.path
+      puts object_name.magenta
+      parent_name = object_name.split(/[#.]/).first
+      puts "No source file found for #{object_name}.".magenta
+      puts "Falling back to containing module/class #{parent_name}...".magenta
+      parent = YARD::Registry.at(parent_name)
+      File.expand_path(parent.file)
+    else
+      File.expand_path(object.file)
+    end
+  end
+
   def replace_docstring(change, filename, offset)
     puts
     puts "Object #{change[:object]}".green
@@ -151,12 +169,26 @@ class Diff < Thor
     # Target docstring
     object_path = change[:object]
     cpp_object = YARD::Registry.at(object_path)
-    cpp_file = File.expand_path(cpp_object.file)
+    cpp_file = find_object_source_file(cpp_object)
     puts "Target File: #{cpp_file}".yellow
     puts "> Lines: #{cpp_object.docstring.line_range} (#{cpp_object.docstring.line_range.size} lines)"
     # Strip out the Ruby comment syntax in order to obtain a language neutral
     # docstring.
     stripped_lines = strip_ruby_comment(source_docstring)
+    # Need to inject special instructions for our classes/modules and some of
+    # our methods.
+    case cpp_object.type
+    when :class, :module
+      type = cpp_object.type.to_s
+      stripped_lines.unshift("Document-#{type}: #{cpp_object.path}", "")
+    when :method
+      # Virtual methods, where we document a method without actually having
+      # an implementation will need to have this explicit directive in order
+      # for YARD to pick it up.
+      if cpp_object.file.nil?
+        stripped_lines.unshift("Document-method: #{cpp_object.path}", "")
+      end
+    end
     doc_string = stripped_lines.join("\n")
     # Restore @overload tags.
     doc_string = reformat_docstring(doc_string, cpp_object)
