@@ -333,8 +333,20 @@ class Diff < Thor
       exit
     end
 
+    work_path = Dir.pwd
+    begin
+      Dir.chdir(source_path)
+      common = `git merge-base master #{git.current_branch}`
+      puts "Common commit: #{common}"
+      data = git.lib.commit_data(common)
+      puts data['author'].magenta
+      puts data['message'].magenta
+    ensure
+      Dir.chdir(work_path)
+    end
+
     # Diff only checked in changes.
-    diffs = git.diff('master', git.current_branch)
+    diffs = git.diff(common, git.current_branch)
 
     # Extract what lines changed from the git diffs.
     changes = diffs.map do |diff|
@@ -349,6 +361,8 @@ class Diff < Thor
   def find_objects(changes, source_path)
     objects = []
     changes.each { |change|
+      #puts "Change: #{change[:file]}".cyan
+      next unless change[:file].end_with?('.rb')
       changed_lines = find_changed_lines(change, source_path)
       line_numbers = changed_lines.map { |change| change[:line] }
       changed_objects = find_changed_objects(change, line_numbers, source_path)
@@ -364,7 +378,9 @@ class Diff < Thor
     begin
       namespace = content.match(RUBY_NAMESPACE).captures.first
     rescue NoMethodError
-      puts content
+      puts filename.yellow
+      puts content.magenta
+      puts JSON.pretty_generate(change)
       raise
     end
 
