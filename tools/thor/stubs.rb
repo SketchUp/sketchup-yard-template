@@ -1,13 +1,11 @@
-require 'json'
-
+require './tools/thor/config'
 require './tools/thor/yard_helper'
 
 class Stubs < Thor
 
   include Thor::Actions
+  include ConfigHelper
   include YardHelper
-
-  CONFIGURATION_FILENAME = 'config.json'.freeze
 
   desc "make", "Generate stubs for the Ruby API"
   yard_method_options
@@ -37,9 +35,9 @@ class Stubs < Thor
     end
     # TODO(thomthom): Clean out target to eliminate removed files?
     FileUtils.cp_r(source, target)
-    directory('assets', "#{target}/assets")
-    directory('pages', "#{target}/pages")
-    directory('su-template/default', "#{target}/su-template/default")
+    directory('assets', "#{target}/assets", force: true)
+    directory('pages', "#{target}/pages", force: true)
+    directory('su-template/default', "#{target}/su-template/default", force: true)
     create_file("#{target}/.yardopts", force: true) {
       <<-EOT
 --title "SketchUp Ruby API Documentation"
@@ -62,38 +60,5 @@ pages/*.md
     write_config(:stubs, :target, target_path)
   end
   default_task :make
-
-  private
-
-  def config_filename
-    File.join(Dir.pwd, CONFIGURATION_FILENAME)
-  end
-
-  def config?(section, key)
-    return false unless File.exist?(config_filename)
-    config = load_config
-    config.key?(section) && config[section].key?(key)
-  end
-
-  def load_config
-    JSON.parse(File.read(config_filename), symbolize_names: true)
-  end
-
-  def save_config(config)
-    json = JSON.pretty_generate(config)
-    File.write(config_filename, json)
-  end
-
-  def read_config(section, key, default_value = nil)
-    config = load_config
-    config[section][key] || default_value
-  end
-
-  def write_config(section, key, value)
-    config = File.exist?(config_filename) ? load_config : {}
-    config[section] ||= {}
-    config[section][key] = value
-    save_config(config)
-  end
 
 end
