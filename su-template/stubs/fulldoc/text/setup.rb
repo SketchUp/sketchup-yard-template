@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'pathname'
 require 'set'
 require 'stringio'
 
@@ -22,13 +23,14 @@ def generate_autoload
 end
 
 def generate_sketchup_autoload
+  base = Pathname.new(autoload_stubs_path)
   autoload_file = File.join(autoload_stubs_path, 'sketchup.rb')
   File.open(autoload_file, 'w') { |file|
     pattern = File.join(sketchup_stubs_path, '**/*.rb')
     Dir.glob(pattern) { |filename|
-      basename = File.basename(filename)
-      # TODO: Use Pathname to resolve relative path.
-      file.puts "require '../SketchUp/#{basename}'"
+      pathname = Pathname.new(filename)
+      relative = pathname.relative_path_from(base)
+      file.puts "require '#{relative.to_s}'"
     }
   }
 end
@@ -52,7 +54,8 @@ end
 
 def generate_module_stubs(object)
   filename = stub_filename(object)
-  File.open(filename, 'w') { |file|
+  ensure_exist(File.dirname(filename))
+  StubFile.open(filename, 'w') { |file|
     file.puts file_header(object)
     file.puts
     file.puts namespace_definition(object)
@@ -64,6 +67,7 @@ def generate_module_stubs(object)
     file.puts
     file.puts file_footer(object)
   }
+  #trim_trailing_white_space(filename)
 end
 
 def file_header(object)
@@ -106,7 +110,7 @@ def sketchup_stubs_path
 end
 
 def stub_filename(object)
-  basename = object.path.gsub('::', '_').downcase
+  basename = object.path.gsub('::', '/')
   basename = '_top_level' if basename.empty?
   File.join(sketchup_stubs_path, "#{basename}.rb")
 end
@@ -271,6 +275,29 @@ def ensure_exist(path)
     FileUtils.mkdir_p(path)
   end
   path
+end
+
+
+class StubFile < File
+
+  def puts(*args)
+    case args.size
+    when 0
+      super
+    when 1
+      super trim_trailing_white_space(args[0].to_s)
+    else
+      raise NotImplementedError
+    end
+  end
+
+  private
+
+  TRAILING_WHITE_SPACE = /([\t ]+)$/
+  def trim_trailing_white_space(string)
+    string.gsub(TRAILING_WHITE_SPACE, '')
+  end
+
 end
 
 
