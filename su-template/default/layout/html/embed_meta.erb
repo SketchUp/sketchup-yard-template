@@ -1,0 +1,52 @@
+<%  su_site_name = h options.title
+    if @index || object == "_index.html" || object == "index.html"
+      if object == "_index.html" || object == "index.html"
+        su_page_url = "http://ruby.sketchup.com/index.html"
+      else
+        su_page_url = "http://ruby.sketchup.com/"+object
+      end
+      su_page_title = "Alphabetic Index"
+      su_page_desc  = "Alphabetic Index of Files and API Namespaces. This is the main landing page for the SketchUp Ruby API Documentation."
+    elsif @file # generating an YARD::CodeObjects::ExtraFileObject
+      su_page_url   = "http://ruby.sketchup.com/file.#{File.basename(@file.filename,'.*')}.html"
+      su_page_title = h @page_title
+      su_page_desc  = @file.title
+    elsif @contents
+      # What is this attrbute ? See: "layout/html/setup.rb"
+    else # object is a YARD::CodeObjects::Base subclass
+      su_page_url   = "http://ruby.sketchup.com/#{@path.gsub('::','/')}.html"
+      su_page_title = h @page_title
+      if !object.respond_to?(:docstring)
+        su_page_desc = object.is_a?(String) ? object.gsub(/[{}+]/,'')[0..127] : "" %>
+      <!-- <%= "YARD Error - No docstring method for type: #{object.class.name}" %>--><%
+      elsif object.docstring.blank?
+        su_page_desc = ""%>
+      <!-- <%= "YARD Warning - Blank docstring, object is: #{object.class.name}" %>--><%
+      else
+        su_page_desc = object.docstring.summary.gsub(/[{}+]/,'')
+      end
+    end
+    su_page_img = "http://developer.sketchup.com/sites/developers.sketchup.com/files/Ruby.svg"
+%>
+  <!-- GENERIC META PROPERTIES -->
+    <meta name="url"   content="<%= su_page_url %>" />
+    <meta name="image" content="<%= su_page_img %>?s=60" />
+    <meta name="title" content="<%= su_page_title %>" />
+    <meta name="name"  content="<%= su_site_name %>" />
+    <meta name="description" content="<%= su_page_desc %>" />
+  <!-- OPEN GRAPH META PROPERTIES -->
+    <meta property="og:site_name" content="<%= su_site_name %>" />
+    <meta property="og:type"      content="website" />
+    <meta property="og:image"     content="<%= su_page_img %>" />
+    <meta property="og:image:width"  content="60" />
+    <meta property="og:image:height" content="60" />
+    <meta property="og:title"     content="<%= su_page_title %>" />
+    <meta property="og:url"       content="<%= su_page_url %>" />
+    <meta property="og:description" content="<%= su_page_desc %>" />
+  <!-- TWITTER CARD META PROPERTIES -->
+    <meta name="twitter:card"  content="summary"   />
+    <meta name="twitter:site"  content="@sketchup" />
+    <meta name="twitter:title" content="<%= su_page_title %>" />
+    <meta name="twitter:description" content="<%= su_page_desc %>" />
+    <meta name="twitter:image:src"   content="<%= su_page_img %>?s=120" />
+    <meta name="twitter:url"   content="<%= su_page_url %>" />
