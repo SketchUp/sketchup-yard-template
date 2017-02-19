@@ -14,16 +14,17 @@
     <script type="text/javascript" charset="utf-8" src="<%= url_for(javascript) %>"></script>
 <% end %>
     <script>
-        // Every time this page is loaded, it sends this action to SketchUp, telling
-        // SketchUp that a new page has loaded that has example snippets that should
-        // be replaced with code editors. Nothing happens if the page is loaded in a
-        // regular browser outside of the SketchUp client.
-        $( document ).ready(function() {
-            if (typeof sketchup == 'object') { 
-                sketchup.page_loaded();
-            }
-        });
+      // Every time this page is loaded, it sends this action to SketchUp, telling
+      // SketchUp that a new page has loaded that has example snippets that should
+      // be replaced with code editors. Nothing happens if the page is loaded in a
+      // regular browser outside of the SketchUp client.
+      $( document ).ready(function() {
+        if (typeof sketchup == 'object') {
+          sketchup.page_loaded();
+        }
+      });
     </script>
+
 </head>
 <body>
 
@@ -42,8 +43,6 @@
         <%= erb(:search) %>
         <div class="clear"></div>
       </div>
-
-      <iframe id="search_frame" src="<%= @nav_url %>"></iframe>
 
       <div id="content"><%= yieldall %></div>
 
