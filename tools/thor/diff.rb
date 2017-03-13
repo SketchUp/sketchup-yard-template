@@ -385,10 +385,14 @@ class Diff < Thor
     end
 
     lines = content.lines
+    # Found APi objects that have changed:
     objects = []
+    # Line numbers parsed:
     parsed = Set.new
+    # Line numbers to parse:
     stack = line_numbers.map { |line_number| line_index = line_number - 1 }.sort
     until stack.empty?
+      # We pick a line number and use that as a base to scan the file.
       line_number = stack.shift
       next if parsed.include?(line_number)
       parsed << line_number
@@ -396,9 +400,13 @@ class Diff < Thor
       # find a line that isn't a Ruby comment. That will be the end of the
       # docstring and we can determine what object it relates to.
       lines[line_number..-1].each_with_index { |line, offset|
+        # We need to take into account the base line number in addition to how
+        # far we currently have scanned.
         current_line_number = line_number + offset + 1
         parsed << current_line_number
         next if line =~ RUBY_COMMENT_LINE
+        # Found a non-comment line - this means we can try to determine what
+        # object the change belonged to.
         object_path = nil
         if result = line.match(RUBY_CLASS_METHOD)
           method_name = result.captures.first
@@ -408,11 +416,18 @@ class Diff < Thor
           object_path = "#{namespace}##{method_name}"
         elsif line.match(RUBY_NAMESPACE)
           object_path = namespace.dup
+        elsif line.strip.empty?
+          # Ignore white-space and keep scanning.
+          next
         else
+          puts 'Uh oh...'.white.on_red
+          puts JSON.pretty_generate(change)
+          puts "File name: #{filename}"
+          puts "Line numbers: #{line_numbers}"
           puts "Line number: #{line_number}"
           puts "Current line number: #{current_line_number}"
           p line
-          puts JSON.pretty_generate(change)
+          p objects
           raise 'Unable to determine what object changed'
         end
         # We then scan the file upwards to determine the start of the docstring.
