@@ -292,13 +292,15 @@ Visual Studio 2015 SP1 (targeting Windows 7). On MacOs we are using XCode 7.2.1
 
 ### Ruby API
 
-* Fixed Entities.transform_by_vectors so that it performs a bounds check on the
-  second array. An ArgumentError is raised if the second array has less items
-  than the first.
-* Added ability to UI::HtmlDialogs to receive JavaScript arrays and objects
+* Fixed {Sketchup::Entities.transform_by_vectors} so that it performs a bounds
+  check on the second array. An `ArgumentError` is raised if the second array
+  has less items than the first.
+* Added ability to {UI::HtmlDialog}s to receive JavaScript arrays and objects
   using callbacks.
-* Removed a limitation with UI::HtmlDialog where callbacks were required to have
-  at least one argument.  Now no arguments are required.
+* Removed a limitation with {UI::HtmlDialog} where callbacks were required to
+  have at least one argument. Now no arguments are required.
+* {UI.show_model_info} no longer opens a Model Info page for `"Extensions"` as
+  that page is now replaced by the Extension Manager dialog.
 
 ### LayOut C API
 
@@ -672,6 +674,7 @@ Below is an outline of new API functionality. Please see the new API docs for ho
 * Added persistent IDs for groups and component which can be accessed via Ruby.
 * Ruby UI.openpanel/savepanel filters now use a more complex filetype filter to allow for multiple multi-file type filters.
 * Added Sketchup.platform that returns either :platform_win or :platform_osx. Developers are encouraged to use this over RUBY_PLATFORM whenever possible.
+* New page `"Classifications"` for {UI.show_model_info}.
 
 ### Ruby Console Upgrades
 
