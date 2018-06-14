@@ -2,17 +2,36 @@
 --no-api
 --no-private
 --tag par --hide-tag par
--e su-api_plugin.rb
--p su-template
-../runits.cpp
-../rsketchup.cpp
-../rentity.cpp
-../rdrawingelement.cpp
-../rgeom.cpp
-../rui.cpp
-../*.cpp
-../observer/rubyentityobserver.cpp
-../observer/rubyentitiesobserver.cpp
-../observer/*.cpp
+--db source/sketchup/ruby/documentation/.yardoc
+-e source/sketchup/ruby/documentation/su-api_plugin.rb
+-p source/sketchup/ruby/documentation/su-template
+-o source/sketchup/ruby/documentation/doc
+
+--exclude source/common/ruby/runits.cpp
+
+--exclude source/layout/ruby/rcommand.cpp
+--exclude source/layout/ruby/rdictionary.cpp
+--exclude source/layout/ruby/rlayout.cpp
+--exclude source/layout/ruby/rpluginstoolbar.cpp
+--exclude source/layout/ruby/rpreferences.cpp
+--exclude source/layout/ruby/rui.cpp
+
+source/sketchup/ruby/runits.cpp
+source/sketchup/ruby/rsketchup.cpp
+source/common/ruby/*.cpp
+source/sketchup/ruby/rentity.cpp
+source/sketchup/ruby/rdrawingelement.cpp
+source/sketchup/ruby/rui.cpp
+source/sketchup/ruby/*.cpp
+source/sketchup/ruby/observer/rubyentityobserver.cpp
+source/sketchup/ruby/observer/rubyentitiesobserver.cpp
+source/sketchup/ruby/observer/*.cpp
+content/sketchup/Tools/sketchup.rb
+
+source/layout/ruby/rlo.cpp
+source/layout/ruby/rentity.cpp
+source/layout/ruby/*.cpp
+
 -
-pages/*.md
+source/sketchup/ruby/documentation/pages/*.md
+source/layout/ruby/documentation/pages/LayOut.md
