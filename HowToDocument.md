@@ -6,9 +6,12 @@
   * Mac: Ships with OS. (Can use RVM: https://rvm.io/)
   * Windows: https://rubyinstaller.org/
 
-* Ruby Gems:
-  * YARD (`gem install yard`)
-  * Thor (`gem install thor`)
+Use [bundler](http://bundler.io/) to install required dependencies for the
+tools.
+
+```bash
+bundle install
+```
 
 ## TL;DR - Usage
 
@@ -101,6 +104,9 @@ http://guides.rubygems.org/ssl-certificate-update/
 The `.yardopts` file contain the configuration for YARD to process our docs.
 
 ## TL;DR - YARD Usage
+
+**Note:** The Thor commands mentioned above are wrappers on top of these YARD
+commands.
 
 Generate API Documentation:
 `yardoc`
