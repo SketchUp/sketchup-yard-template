@@ -5,7 +5,7 @@ require 'yard-sketchup/yard/handlers/class_constants'
 require 'yard-sketchup/yard/handlers/class_enum_constants'
 require 'yard-sketchup/yard/handlers/global_constants'
 
-module SketchupYARD
+module SketchUpYARD
 
   def self.init
     # https://github.com/burtlo/yard-cucumber/blob/master/lib/yard-cucumber.rb

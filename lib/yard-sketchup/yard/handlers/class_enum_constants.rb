@@ -1,4 +1,4 @@
-module SketchupYARD
+module SketchUpYARD
   class ClassEnumConstantHandler < YARD::Handlers::C::Base
 
     MATCH = %r{\bDEFINE_RUBY_CLASS_ENUM\s*\(([^,]+)\s*,\s*(\w+)\s*\)\s*;}xm

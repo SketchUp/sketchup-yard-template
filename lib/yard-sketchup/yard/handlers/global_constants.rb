@@ -1,4 +1,4 @@
-module SketchupYARD
+module SketchUpYARD
   class GlobalConstantHandler < YARD::Handlers::C::Base
 
     MATCH = %r{\bDEFINE_RUBY_(?:(?:NAMED_)?CONSTANT|ENUM)\s*\((?:[^)]+,\s*)?(\w+)\)\s*;}xm
