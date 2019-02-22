@@ -6,5 +6,5 @@ coverage.manifest
 config.json
 
 # Ignore gem related files.
-# Gemfile\.lock
-# *.gem
+Gemfile\.lock
+*.gem
