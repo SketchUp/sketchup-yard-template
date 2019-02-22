@@ -15,6 +15,11 @@ def namespace_objects
 end
 
 
+def output_path
+  options.serializer.options[:basepath] || Dir.pwd
+end
+
+
 def generate_manifest
   puts "Generating #{MANIFEST_FILENAME}..."
   methods = Set.new
@@ -27,9 +32,7 @@ def generate_manifest
     }
   end
   manifest = methods.sort.join("\n")
-  # TODO(thomthom): Add an option for the output path so this can be put
-  # directly into the Ruby API test folder.
-  manifest_path = File.join(Dir.pwd, MANIFEST_FILENAME)
+  manifest_path = File.join(output_path, MANIFEST_FILENAME)
   puts manifest_path
   File.write(manifest_path, manifest)
 end

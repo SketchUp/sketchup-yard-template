@@ -97,8 +97,12 @@ def namespace_definition(object)
   output.string
 end
 
+def output_path
+  options.serializer.options[:basepath] || File.join(Dir.pwd, 'stubs')
+end
+
 def stubs_path
-  ensure_exist(File.join(Dir.pwd, 'stubs'))
+  ensure_exist(output_path)
 end
 
 def autoload_stubs_path
@@ -311,6 +315,16 @@ MANUAL_CONSTANT_GROUPS = [
   {
     constants: %w{X_AXIS Y_AXIS Z_AXIS},
     group: 'AXES'
+  },
+  # Axes 2D
+  {
+    constants: %w{X_AXIS_2D Y_AXIS_2D},
+    group: 'AXES2D'
+  },
+  # Transformation
+  {
+    constants: %w{IDENTITY IDENTITY_2D},
+    group: 'IDENTITY'
   },
   # Geom::PolygonMesh
   {

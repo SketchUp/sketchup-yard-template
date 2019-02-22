@@ -18,6 +18,11 @@ def namespace_objects
 end
 
 
+def output_path
+  options.serializer.options[:basepath] || Dir.pwd
+end
+
+
 def changelog_filename
   'Changelog SU201x.log'
 end
@@ -34,6 +39,6 @@ def generate_changelog
     #}
     output.puts "Added #{object.type} #{object.path}"
   end
-  changelog_path = File.join(Dir.pwd, changelog_filename)
+  changelog_path = File.join(output_path, changelog_filename)
   File.write(changelog_path, output.string)
 end
