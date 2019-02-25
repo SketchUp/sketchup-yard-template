@@ -1,5 +1,0 @@
-require './tools/thor/changelog'
-require './tools/thor/coverage'
-require './tools/thor/diff'
-require './tools/thor/doc'
-require './tools/thor/stubs'
