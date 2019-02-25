@@ -18,9 +18,9 @@ module SketchUpYARD
   end
 
   def self.templates_path
-    File.join(__dir__, 'templates')
+    File.join(__dir__, 'yard-sketchup', 'templates')
   end
 
 end
 
-SketchupYARD.init
+SketchUpYARD.init
