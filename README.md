@@ -26,3 +26,23 @@ pages/*.md
 ```
 
 The `assets` and `pages` directory can be found in the [SketchUp Ruby API stubs](https://github.com/SketchUp/ruby-api-stubs) repository.
+
+## Useful YARD Commands
+
+### TL;DR - YARD Usage
+
+**Note:** The Thor commands mentioned above are wrappers on top of these YARD
+commands.
+
+Generate API Documentation:
+`yardoc`
+
+Exclude a version:
+
+`yardoc --query '@version.text != "SketchUp 2018"'`
+
+Generate API Stubs:
+`yardoc -t stubs -f text`
+
+Generate coverage.manifest:
+`yardoc -t coverage -f text`
