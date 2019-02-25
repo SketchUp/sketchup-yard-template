@@ -1,9 +1,6 @@
 # Ignore generated files.
-/.yardoc/
-/doc/
-/stubs/
-coverage.manifest
-config.json
+.yardoc/
+doc/
 
 # Ignore gem related files.
 Gemfile\.lock
