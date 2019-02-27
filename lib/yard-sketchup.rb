@@ -25,6 +25,10 @@ module SketchUpYARD
       YARD::Tags::Library.define_tag('Known Bugs', :bug),
     ]
     YARD::Tags::Library.visible_tags |= tags
+
+    # Custom directive tags:
+    YARD::Tags::Library.define_tag('Category', :category, :with_title_and_text)
+    YARD::Tags::Library.transitive_tags << :category
   end
 
   def self.templates_path
