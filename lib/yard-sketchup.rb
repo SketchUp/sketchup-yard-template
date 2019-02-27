@@ -15,6 +15,9 @@ module SketchUpYARD
     # YARD::Server.register_static_path File.dirname(__FILE__) + "/templates/default/fulldoc/html"
 
     YARD::Templates::Engine.register_template_path self.templates_path
+
+    # https://www.rubydoc.info/gems/yard/file/docs/TagsArch.md#Adding_Custom_Tags
+    YARD::Tags::Library.define_tag('Known Bugs', :bug)
   end
 
   def self.templates_path
