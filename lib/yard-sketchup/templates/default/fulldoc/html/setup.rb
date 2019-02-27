@@ -1,3 +1,7 @@
+def javascripts_full_list
+  %w(js/jquery.js js/full_list.js js/sketchup.js)
+end
+
 # Custom search list grouping the classes in the API into similar groups.
 # TODO(thomthom): This file is just a stub.
 
