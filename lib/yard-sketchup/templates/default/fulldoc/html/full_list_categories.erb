@@ -1,7 +1,7 @@
 <% even_odd = 'odd'  %>
 <% @items.each do |item, item_objects| %>
   <li id="object_category_<%= item.downcase.tr(': ', '_') %>" class="<%= even_odd %>">
-    <div class="item" style='padding-left: 30px'>
+    <div class="item item-category" style='padding-left: 30px'>
       <a class='toggle'></a>
       <span class="object_link"><a title="<%= item %>"><%= item %></a></span>
     </div>
