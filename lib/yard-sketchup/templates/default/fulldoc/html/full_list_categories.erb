@@ -1,7 +1,22 @@
 <% even_odd = 'odd'  %>
-<% @items.each do |item| %>
-  <li id="object_<%= item.downcase.tr(':', '_') %>" class="<%= even_odd %>">
-    <div class="item"><span class="object_link"><%= link_file(item, item) %></span></div>
+<% @items.each do |item, item_objects| %>
+  <li id="object_category_<%= item.downcase.tr(': ', '_') %>" class="<%= even_odd %>">
+    <div class="item" style='padding-left: 30px'>
+      <a class='toggle'></a>
+      <span class="object_link"><a title="<%= item %>"><%= item %></a></span>
+    </div>
+    <ul>
+    <% item_objects.each do |item_object| %>
+      <li id="object_<%= item_object.path %>" class="<%= even_odd %>">
+        <div class='item' style='padding-left: 45px'>
+          <%= linkify(item_object, item_object.name) %>
+          <small class='search_info'>
+            <%= item_object.namespace.title %>
+          </small>
+        </div>
+      </li>
+    <% end %>
+    </ul>
   </li>
   <% even_odd = (even_odd == 'even' ? 'odd' : 'even') %>
 <% end %>
