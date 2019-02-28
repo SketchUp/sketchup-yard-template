@@ -5,7 +5,7 @@ end
 # Custom search list grouping the classes in the API into similar groups.
 
 def generate_categories_list
-  @items = list_of_categories.sort { |a, b| a[0] <=> b[0] }
+  @items = list_of_categories
   @list_title = "Object Reference"
   @list_type = "categories"
 
@@ -27,5 +27,8 @@ def list_of_categories
       categories[tag.name] << object
     }
   }
-  categories
+  categories.each { |category, category_objects|
+    category_objects.sort! { |a, b| a.title <=> b.title }
+  }
+  categories.sort { |a, b| a[0] <=> b[0] }
 end

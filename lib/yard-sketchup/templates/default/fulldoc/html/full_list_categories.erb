@@ -9,7 +9,7 @@
     <% item_objects.each do |item_object| %>
       <li id="object_<%= item_object.path %>" class="<%= even_odd %>">
         <div class='item' style='padding-left: 45px'>
-          <%= linkify(item_object, item_object.name) %>
+          <%= linkify(item_object, item_object.title) %> (<%= item_object.type %>)
           <small class='search_info'>
             <%= item_object.namespace.title %>
           </small>
