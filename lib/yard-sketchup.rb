@@ -17,7 +17,12 @@ module SketchUpYARD
     YARD::Templates::Engine.register_template_path self.templates_path
 
     # https://www.rubydoc.info/gems/yard/file/docs/TagsArch.md#Adding_Custom_Tags
-    YARD::Tags::Library.define_tag('Known Bugs', :bug)
+    # https://github.com/lsegal/yard/issues/1227
+    # Custom visible tags:
+    tags = [
+      YARD::Tags::Library.define_tag('Known Bugs', :bug),
+    ]
+    YARD::Tags::Library.visible_tags |= tags
   end
 
   def self.templates_path
