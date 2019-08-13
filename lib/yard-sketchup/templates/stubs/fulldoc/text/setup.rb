@@ -18,22 +18,22 @@ def namespace_objects
 end
 
 
-def generate_autoload
-  generate_sketchup_autoload
-end
+# def generate_autoload
+#   generate_sketchup_autoload
+# end
 
-def generate_sketchup_autoload
-  base = Pathname.new(autoload_stubs_path)
-  autoload_file = File.join(autoload_stubs_path, 'sketchup.rb')
-  File.open(autoload_file, 'w') { |file|
-    pattern = File.join(sketchup_stubs_path, '**/*.rb')
-    Dir.glob(pattern) { |filename|
-      pathname = Pathname.new(filename)
-      relative = pathname.relative_path_from(base)
-      file.puts "require '#{relative.to_s}'"
-    }
-  }
-end
+# def generate_sketchup_autoload
+#   base = Pathname.new(autoload_stubs_path)
+#   autoload_file = File.join(autoload_stubs_path, 'sketchup.rb')
+#   File.open(autoload_file, 'w') { |file|
+#     pattern = File.join(sketchup_stubs_path, '**/*.rb')
+#     Dir.glob(pattern) { |filename|
+#       pathname = Pathname.new(filename)
+#       relative = pathname.relative_path_from(base)
+#       file.puts "require '#{relative.to_s}'"
+#     }
+#   }
+# end
 
 def generate_stubs
   puts "Generating stubs..."
@@ -41,7 +41,16 @@ def generate_stubs
   namespace_objects.each do |object|
     generate_module_stubs(object)
   end
-  generate_autoload
+  generate_autoloader(namespace_objects)
+end
+
+def generate_autoloader(namespace_objects)
+  generator = SketchUpYARD::Stubs::AutoLoadGenerator.new
+  base = Pathname.new(autoload_stubs_path)
+  autoload_file = File.join(autoload_stubs_path, 'sketchup.rb')
+  File.open(autoload_file, 'w') do |file|
+    generator.generate(namespace_objects, file)
+  end
 end
 
 def print_section(io, title, content)

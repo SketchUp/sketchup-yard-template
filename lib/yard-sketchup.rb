@@ -1,5 +1,6 @@
 require 'yard'
 require 'yard-sketchup/version'
+require 'yard-sketchup/stubs/autoload'
 require 'yard-sketchup/yard/logger'
 require 'yard-sketchup/yard/handlers/class_constants'
 require 'yard-sketchup/yard/handlers/class_enum_constants'
