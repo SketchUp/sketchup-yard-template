@@ -113,6 +113,14 @@ def stub_filename(object)
   File.join(stubs_path, "#{basename}.rb")
 end
 
+# A stable sort_by method.
+#
+# @param [Enumerable]
+# @return [Array]
+def stable_sort_by(list)
+  list.each_with_index.sort_by { |item, i| [yield(item), i] }.map(&:first)
+end
+
 CAMELCASE_CONSTANT = /^([A-Z]+[a-z]+)/
 
 def group_constant(constant)
@@ -144,9 +152,7 @@ def generate_constants_grouped(object)
   grouped_output = groups.map { |group, group_constants|
     output = StringIO.new
     # Each group itself is sorted in order to more easily scan the list.
-    sorted = group_constants.sort { |a, b|
-      a.name <=> b.name
-    }
+    sorted = stable_sort_by(group_constants, &:name)
     sorted.each { |constant|
       output.puts "  #{constant.name} = nil # Stub value."
     }
@@ -154,17 +160,14 @@ def generate_constants_grouped(object)
   }
   # Finally each group is also sorted, again to ease scanning for a particular
   # name. We simply use the first character of each group.
-  grouped_output.sort { |a, b|
-    a.lstrip[0] <=> b.lstrip[0]
-  }.join("\n")
+  stable_sort_by(grouped_output) { |item| item.lstrip[0] }.join("\n")
 end
 
 # Sort constants without grouping.
 def generate_constants(object)
   output = StringIO.new
-  constants = run_verifier(object.constants(object_options)).sort { |a, b|
-    a.name <=> b.name
-  }
+  constants = run_verifier(object.constants(object_options))
+  constants = stable_sort_by(constants, &:name) 
   constants.each { |constant|
     output.puts "  #{constant.name} = nil # Stub value."
   }
@@ -174,9 +177,8 @@ end
 def generate_mixins(object, scope)
   output = StringIO.new
   mixin_type = (scope == :class) ? 'extend' : 'include'
-  mixins = run_verifier(object.mixins(scope)).sort { |a, b|
-    a.path <=> b.path
-  }
+  mixins = run_verifier(object.mixins(scope))
+  mixins = stable_sort_by(mixins, &:path)
   mixins.each { |mixin|
     output.puts "  #{mixin_type} #{mixin.path}"
   }
@@ -255,9 +257,7 @@ def sort_methods(object, scope)
   objects = methods.select { |method|
     method.scope == scope
   }
-  objects.sort { |a, b|
-    a.name <=> b.name
-  }
+  stable_sort_by(objects, &:name)
 end
 
 def object_options
