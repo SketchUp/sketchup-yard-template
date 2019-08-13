@@ -17,24 +17,6 @@ def namespace_objects
   run_verifier(Registry.all(:class, :module))
 end
 
-
-# def generate_autoload
-#   generate_sketchup_autoload
-# end
-
-# def generate_sketchup_autoload
-#   base = Pathname.new(autoload_stubs_path)
-#   autoload_file = File.join(autoload_stubs_path, 'sketchup.rb')
-#   File.open(autoload_file, 'w') { |file|
-#     pattern = File.join(sketchup_stubs_path, '**/*.rb')
-#     Dir.glob(pattern) { |filename|
-#       pathname = Pathname.new(filename)
-#       relative = pathname.relative_path_from(base)
-#       file.puts "require '#{relative.to_s}'"
-#     }
-#   }
-# end
-
 def generate_stubs
   puts "Generating stubs..."
   generate_module_stubs(Registry.root)
@@ -46,8 +28,7 @@ end
 
 def generate_autoloader(namespace_objects)
   generator = SketchUpYARD::Stubs::AutoLoadGenerator.new
-  base = Pathname.new(autoload_stubs_path)
-  autoload_file = File.join(autoload_stubs_path, 'sketchup.rb')
+  autoload_file = File.join(stubs_gem_path, 'sketchup.rb')
   File.open(autoload_file, 'w') do |file|
     generator.generate(namespace_objects, file)
   end
@@ -110,22 +91,26 @@ def output_path
   options.serializer.options[:basepath] || File.join(Dir.pwd, 'stubs')
 end
 
-def stubs_path
+def stubs_root_path
   ensure_exist(output_path)
 end
 
-def autoload_stubs_path
-  ensure_exist(File.join(stubs_path, 'autoload'))
+def stubs_lib_path
+  ensure_exist(File.join(stubs_root_path, 'lib'))
 end
 
-def sketchup_stubs_path
-  ensure_exist(File.join(stubs_path, 'SketchUp'))
+def stubs_gem_path
+  ensure_exist(File.join(stubs_lib_path, 'sketchup-api-stubs'))
+end
+
+def stubs_path
+  ensure_exist(File.join(stubs_gem_path, 'stubs'))
 end
 
 def stub_filename(object)
   basename = object.path.gsub('::', '/')
   basename = '_top_level' if basename.empty?
-  File.join(sketchup_stubs_path, "#{basename}.rb")
+  File.join(stubs_path, "#{basename}.rb")
 end
 
 CAMELCASE_CONSTANT = /^([A-Z]+[a-z]+)/
