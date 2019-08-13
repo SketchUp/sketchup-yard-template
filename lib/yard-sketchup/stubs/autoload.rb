@@ -73,7 +73,7 @@ module SketchUpYARD
       end
 
 
-      def resolve_dependencies(namespace_objects)
+      def resolve_dependencies(yard_objects)
         factory = NodeFactory.new
         dependencies = SortedSet.new
 
