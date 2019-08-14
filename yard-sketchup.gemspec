@@ -21,5 +21,5 @@ Gem::Specification.new do |spec|
   ]
 
   spec.add_dependency 'yard', '~> 0.9.18'
-  spec.add_development_dependency 'bundler', '~> 2.0'
+  spec.add_development_dependency 'bundler', '>= 1.15.0', '< 3.0'
 end
