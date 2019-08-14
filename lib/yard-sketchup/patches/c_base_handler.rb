@@ -46,9 +46,6 @@ module YARD
           'rb_eSystemCallError' => 'SystemCallError',
         }
 
-        # YARD::CodeObjects::ClassObject
-        # P(var)
-
       end
     end
   end
