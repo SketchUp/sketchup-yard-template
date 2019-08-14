@@ -113,6 +113,10 @@ module SketchUpYARD
 
       def recurse_require(object, required, out, indent = 0)
         return if required.include?(object.path)
+        # If a class inherit from a core Ruby class we might get a Proxy code
+        # object here. We don't generate stubs for those and thus we don't want
+        # to create a require for them either.
+        return if object.object.is_a?(YARD::CodeObjects::Proxy)
         # First require the dependencies.
         object.dependencies.each { |dependency|
           recurse_require(dependency, required, out, indent + 1)
