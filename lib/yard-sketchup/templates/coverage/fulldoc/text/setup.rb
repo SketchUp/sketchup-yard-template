@@ -28,6 +28,9 @@ def generate_manifest
       # TODO(thomthom): Currently the manifest doesn't distinguish between
       # class and instance methods. This should be addressed, but we need to
       # update TestUp to handle this first.
+      # TODO(thomthom): Make this a configurable filter.
+      # Layout has its own tests - and should be isolated so its own suite.
+      next if method.namespace.to_s.start_with?('Layout')
       methods << "#{method.namespace}.#{method.name}"
     }
   end
