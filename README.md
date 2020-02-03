@@ -1,6 +1,8 @@
 # SketchUp Ruby API YARD Template
 
-This is the customized YARD template the SketchUp team uses to generate the [SketchUp Ruby API documentation](http://ruby.sketchup.com/).
+[![Gem Version](https://badge.fury.io/rb/yard-sketchup.svg)](https://badge.fury.io/rb/yard-sketchup)
+
+This is the customized YARD template the SketchUp team uses to generate the [SketchUp Ruby API documentation](https://ruby.sketchup.com/).
 
 It is made available for easy re-use. Using this gem a local copy of the documentation can be generated from our [SketchUp Ruby API stubs](https://github.com/SketchUp/ruby-api-stubs).
 
