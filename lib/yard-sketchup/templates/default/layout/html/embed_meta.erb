@@ -2,32 +2,32 @@
     case object
     when String
       if object == "_index.html" || object == "index.html"
-        su_page_url = "http://ruby.sketchup.com/index.html"
+        su_page_url = "https://ruby.sketchup.com/index.html"
         su_page_title = "Alphabetic Index"
         su_page_desc  = "Alphabetic Index of Files and API Namespaces. This is the main landing page for the SketchUp Ruby API Documentation."
       else
-        su_page_url = "http://ruby.sketchup.com/"+(object =~ /(.html)\z/ ? object : "#{File.basename(object,'.*')}.html" )
+        su_page_url = "https://ruby.sketchup.com/"+(object =~ /(.html)\z/ ? object : "#{File.basename(object,'.*')}.html" )
         su_page_title = (@page_title && !@page_title.empty?) ? (h @page_title) : object.split('.')[0]
         su_page_desc  = "The #{su_page_title} page."
       end
     when YARD::CodeObjects::Base # or subclass
-      if object.root? 
+      if object.root?
         if @file # Generating a YARD::CodeObjects::ExtraFileObject
-          su_page_url   = "http://ruby.sketchup.com/file.#{File.basename(@file.filename,'.*')}.html"
+          su_page_url   = "https://ruby.sketchup.com/file.#{File.basename(@file.filename,'.*')}.html"
           su_page_title = h @page_title
           su_page_desc  = @file.title
         elsif h @page_title == "Top Level Namespace"
-          su_page_url   = "http://ruby.sketchup.com/top-level-namespace.html"
+          su_page_url   = "https://ruby.sketchup.com/top-level-namespace.html"
           su_page_title = h @page_title
           su_page_desc  = "The Top Level Namespace for Ruby and the SketchUp API, listing global constants, and a summary of toplevel modules and classes."
         else %>
       <!-- <%= "YARD Error - (embed_meta.erb) Unknown root object - using site name." %>--><%
           su_page_title = su_site_name
-          su_page_url   = "http://ruby.sketchup.com/"
+          su_page_url   = "https://ruby.sketchup.com/"
           su_page_desc  = "#{su_site_name}."
         end
       else # Generating a Class or Module page:
-        su_page_url   = "http://ruby.sketchup.com/#{@path.gsub('::','/')}.html"
+        su_page_url   = "https://ruby.sketchup.com/#{@path.gsub('::','/')}.html"
         su_page_title = h @page_title
         if object.docstring.blank?
           if object.is_a?(YARD::CodeObjects::ClassObject)
@@ -45,7 +45,7 @@
     else # object is unexpected type %>
       <!-- <%= "YARD Error - (embed_meta.erb) Unexpected type: #{object.class.name}" %>--><%
       su_page_title = su_site_name
-      su_page_url   = "http://ruby.sketchup.com/"
+      su_page_url   = "https://ruby.sketchup.com/"
       if object.respond_to?(:docstring)
         su_page_desc = object.docstring.summary.gsub(/[{}+]/,'')
       else

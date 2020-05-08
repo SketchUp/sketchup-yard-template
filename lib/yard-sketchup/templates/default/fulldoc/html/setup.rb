@@ -1,5 +1,27 @@
+# Helpers:
+
+# Copy verbatim an asset file to the target output. By default it uses the
+# same relative path as the source for the target path.
+def copy(source, target = nil)
+  path = self.class.find_file(source)
+  puts "copy(#{source}, #{target})"
+  puts "> path: #{path}"
+  raise ArgumentError, "no file for '#{source}' in #{self.class.path}" unless path
+  target ||= source
+  asset(target, File.binread(path))
+end
+
+# Template overrides:
+
 def javascripts_full_list
   %w(js/jquery.js js/full_list.js js/sketchup.js)
+end
+
+def generate_assets
+  super
+  copy('favicon.ico')
+  copy('images/SU_Developer-RedWhite.png')
+  copy('images/trimble-logo-white.png')
 end
 
 # Custom search list grouping the classes in the API into similar groups.
