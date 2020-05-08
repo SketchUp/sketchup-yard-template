@@ -4,8 +4,8 @@
 # same relative path as the source for the target path.
 def copy(source, target = nil)
   path = self.class.find_file(source)
-  puts "copy(#{source}, #{target})"
-  puts "> path: #{path}"
+  # puts "copy(#{source}, #{target})"
+  # puts "> path: #{path}"
   raise ArgumentError, "no file for '#{source}' in #{self.class.path}" unless path
   target ||= source
   asset(target, File.binread(path))
