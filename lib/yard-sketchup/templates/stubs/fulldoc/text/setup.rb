@@ -167,7 +167,7 @@ end
 def generate_constants(object)
   output = StringIO.new
   constants = run_verifier(object.constants(object_options))
-  constants = stable_sort_by(constants, &:name) 
+  constants = stable_sort_by(constants, &:name)
   constants.each { |constant|
     output.puts "  #{constant.name} = nil # Stub value."
   }
@@ -206,6 +206,10 @@ def generate_methods(object, scope, prefix = '')
     output.puts generate_docstring(method, 1)
     output.puts "  def #{prefix}#{signature}"
     output.puts "  end"
+    # Include aliases.
+    method.aliases.each { |method_alias|
+      output.puts "  alias_method :#{method.name}, :#{method_alias.name}"
+    }
     output.string
   }
   signatures.join("\n")
@@ -255,7 +259,7 @@ end
 def sort_methods(object, scope)
   methods = run_verifier(object.meths(object_options))
   objects = methods.select { |method|
-    method.scope == scope
+    !method.is_alias? && method.scope == scope
   }
   stable_sort_by(objects, &:name)
 end
