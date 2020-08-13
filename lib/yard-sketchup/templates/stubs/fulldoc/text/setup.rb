@@ -208,7 +208,7 @@ def generate_methods(object, scope, prefix = '')
     output.puts "  end"
     # Include aliases.
     method.aliases.each { |method_alias|
-      output.puts "  alias_method :#{method.name}, :#{method_alias.name}"
+      output.puts "  alias_method :#{method_alias.name}, :#{method.name}"
     }
     output.string
   }
