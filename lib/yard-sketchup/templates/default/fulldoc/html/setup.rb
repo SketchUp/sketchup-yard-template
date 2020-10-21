@@ -14,7 +14,7 @@ end
 # Template overrides:
 
 def javascripts_full_list
-  %w(js/jquery.js js/full_list.js js/sketchup.js)
+  %w(js/jquery.js js/jquery-migrate.js js/full_list.js js/sketchup.js)
 end
 
 def generate_assets
