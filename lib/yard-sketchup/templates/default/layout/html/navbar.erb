@@ -3,7 +3,7 @@
     <div id="api-documentation-header">
         <div class="navbar-header">
             <a class="logo navbar-btn pull-left" href="https://developer.sketchup.com" title="Home">
-                <img src="https://ruby.sketchup.com/images/sketchup-logo.svg" alt="SketchUp">
+                <img src="<%= url_for('images/sketchup-logo.svg') %>" alt="SketchUp">
             </a>
             <a class="name navbar-brand" href="/en" title="Home">SketchUp Developer Center</a>
             <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
@@ -21,7 +21,7 @@
                     <li class="leaf"><a href="https://blog.sketchup.com/">SketchUp Blog</a></li>
                     <li class="leaf"><a href="https://www.sketchup.com/download" class="top-menu--download-button">Download</a></li>
                     <li class="last expanded dropdown">
-                        <a href="https://www.trimble.com" class="trimble-top-menu-item dropdown-toggle" data-target="#" data-toggle="dropdown"><img src="https://ruby.sketchup.com/images/trimble-logo-white.svg" alt="Trimble"><span class="caret"></span></a>
+                        <a href="https://www.trimble.com" class="trimble-top-menu-item dropdown-toggle" data-target="#" data-toggle="dropdown"><img src="<%= url_for('images/trimble-logo-white.svg') %>" alt="Trimble"><span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li class="first leaf"><a href="https://connect.trimble.com/">Trimble Connect</a></li>
                             <li class="leaf"><a href="https://www.trimble.com/Corporate/About_Trimble.aspx">About Trimble</a></li>
