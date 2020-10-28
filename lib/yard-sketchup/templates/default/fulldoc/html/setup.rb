@@ -22,6 +22,7 @@ def generate_assets
   copy('favicon.ico')
   copy('images/sketchup-logo.svg')
   copy('images/trimble-logo-white.svg')
+  copy('images/Ruby.svg')
 end
 
 # Custom search list grouping the classes in the API into similar groups.
