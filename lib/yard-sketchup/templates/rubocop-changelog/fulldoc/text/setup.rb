@@ -34,7 +34,13 @@ def generate_changelog
     version = version_tag.text
 
     # Don't list SU6 or older.
-    next if version.match(VERSION_MATCH).captures[0].to_i <= 6
+    result = version.match(VERSION_MATCH)
+    next if result && result.captures[0].to_i <= 6
+
+    if result.nil?
+      $stderr.puts "WARNING: Invalid version format: #{version} (#{object.path})"
+      next
+    end
 
     versions[version] ||= {}
     versions[version][object.type] ||= []
