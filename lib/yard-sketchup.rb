@@ -5,6 +5,7 @@ require 'yard-sketchup/yard/logger'
 require 'yard-sketchup/yard/handlers/class_constants'
 require 'yard-sketchup/yard/handlers/class_enum_constants'
 require 'yard-sketchup/yard/handlers/global_constants'
+require 'yard-sketchup/yard/html_helper'
 require 'yard-sketchup/patches/c_base_handler'
 
 module SketchUpYARD

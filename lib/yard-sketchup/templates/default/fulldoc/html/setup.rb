@@ -17,8 +17,16 @@ def javascripts_full_list
   %w(js/jquery.js js/jquery-migrate.js js/full_list.js js/sketchup.js)
 end
 
+require 'rouge'
+
 def generate_assets
   super
+
+  # TODO: Can this be part of html_helper.rb ?
+  # IgorPro
+  # Pastie
+  asset('css/rouge.css', Rouge::Themes::IgorPro.render(scope: 'pre.code.cpp'))
+
   copy('favicon.ico')
   copy('images/sketchup-logo.svg')
   copy('images/trimble-logo-white.svg')

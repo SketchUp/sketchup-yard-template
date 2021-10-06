@@ -8,6 +8,7 @@
 <% stylesheets.each do |stylesheet| %>
     <link rel="stylesheet" href="<%= url_for(stylesheet) %>" type="text/css" charset="utf-8" />
 <% end %>
+    <link rel="stylesheet" href="<%= url_for('css/rouge.css') %>" type="text/css" charset="utf-8" />
   <!-- SCRIPTS -->
 <%= erb :script_setup %>
 <% javascripts.each do |javascript| %>
