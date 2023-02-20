@@ -235,6 +235,17 @@ def generate_method_signature(object)
   # Compile the signature for the arguments and default values.
   params = parameters.map { |param|
     param.last.nil? ? param.first : param.join(' = ')
+    if param.last.nil?
+      param.first
+    else
+      if param.first.end_with?(':')
+        # Named param.
+        param.join(' ')
+      else
+        # Positional param.
+        param.join(' = ')
+      end
+    end
   }.join(', ')
   signature << "(#{params})" unless params.empty?
   signature
