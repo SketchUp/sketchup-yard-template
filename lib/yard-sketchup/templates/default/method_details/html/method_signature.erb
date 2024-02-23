@@ -23,4 +23,8 @@
         <%= linkify object, owner.relative_path(object.namespace) %>
     </span>
   <% end %>
+
+  <% if object.group %>
+    <span class="group_badge"><span><%= object.group %></span></span>
+  <% end %>
 </h3>
