@@ -145,10 +145,10 @@ h3.signature .group_badge {
   display: block;
 }
 
-h3.signature .group_badge > span {
+h3.signature .group_badge > a {
   display: inline-block;
-  color: #fff;
-  background: #5b66bf;
+  color: #fff !important;
+  background: #5b66bf !important;
   border: 1px solid #323e94;
   border-radius: 2px;
   padding: 0 5px;

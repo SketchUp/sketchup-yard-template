@@ -25,6 +25,6 @@
   <% end %>
 
   <% if object.group %>
-    <span class="group_badge"><span><%= object.group %></span></span>
+    <span class="group_badge"><a href="#<%= object.group.gsub(' ', '_').downcase %>"><%= object.group %></a></span>
   <% end %>
 </h3>
