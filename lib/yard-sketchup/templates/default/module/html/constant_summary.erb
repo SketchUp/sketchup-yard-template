@@ -2,6 +2,10 @@
   <% groups(constant_listing, "Constant") do |list, name| %>
     <h2>
       <%= name %>
+      <a
+          id="<%= name.gsub(' ', '_').downcase %>"
+          href="#<%= name.gsub(' ', '_').downcase %>"
+          title="Permalink">#</a>
       <small><a href="#" class="constants_summary_toggle">collapse</a></small>
     </h2>
 
