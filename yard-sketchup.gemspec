@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
       'Gemfile'
   ]
 
-  spec.add_dependency 'yard', '~> 0.9.18'
+  spec.add_dependency 'yard', '~> 0.9.37'
   spec.add_dependency 'rouge', '~> 3.26'
   spec.add_development_dependency 'bundler', '>= 1.15.0', '< 3.0'
 end
