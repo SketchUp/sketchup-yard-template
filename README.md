@@ -33,9 +33,6 @@ The `assets` and `pages` directory can be found in the [SketchUp Ruby API stubs]
 
 ### TL;DR - YARD Usage
 
-**Note:** The Thor commands mentioned above are wrappers on top of these YARD
-commands.
-
 Generate API Documentation:
 `yardoc`
 
