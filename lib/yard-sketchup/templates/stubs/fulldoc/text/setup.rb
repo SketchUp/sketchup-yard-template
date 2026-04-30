@@ -69,14 +69,24 @@ def file_header(object)
 end
 
 def file_footer(object)
-  return if object.root?
+  # return if object.root?
   footer = StringIO.new
   footer.puts 'end'
   footer.string
 end
 
+# Solargraph doesn't appear to pick up global methods/constants unless they are
+# defined within the Kernel module. (Which is technically correct as that is
+# where they are defined in Ruby.)
+#
+# https://github.com/SketchUp/ruby-api-stubs/issues/88
+def global_definition(object)
+  "module Kernel"
+end
+
 def namespace_definition(object)
-  return if object.root?
+  # return if object.root?
+  return global_definition(object) if object.root?
   definition = "#{object.type} #{object.path}"
   if object.type == :class && object.superclass.name != :Object
     definition << " < #{object.superclass.path}"
